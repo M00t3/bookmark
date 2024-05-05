@@ -5,6 +5,8 @@ import time
 import argparse
 import configparser
 
+from quick_search_config import sites_dict
+
 # read config file
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -69,7 +71,7 @@ def open_site(use_rofi, browser, file_path=".sites.txt"):
     switch_workspace()
 
 
-def open_important_site(use_rofi, browser, important_site="./.important_site.txt"):
+def quick_search(use_rofi, browser, important_site="./.important_site.txt"):
 
     def get_site(use_rofi):
         if use_rofi:
@@ -139,19 +141,10 @@ def open_important_site(use_rofi, browser, important_site="./.important_site.txt
             (line.split()[1] for line in lines if line.startswith(first_part)), None
         )
 
-        site_dict = {
-            "dj": f"https://docs.djangoproject.com/en/5.0/search//?q={search_to}",
-            "db": f"https://wiki.debian.org/?action=fullsearch&value={search_to}",
-            "ar": f"https://wiki.archlinux.org/index.php?search={search_to}",
-            "yt": f"https://www.youtube.com/results?search_query={search_to}",
-            "gt": f"https://github.com/search?q={search_to}&type=Repositories",
-            "vi": f"https://vim.fandom.com/wiki/Special:Search?query={search_to}&scope=internal&contentType=&ns%5B0%5D=0",
-            "chg": f"https://cheatography.com/explore/search/?q={search_to}",
-        }
-
-        if first_part in site_dict and search_to:
-            open_with_browser(site_dict[first_part])
-        elif first_part not in site_dict and site_name and search_to:
+        sites = sites_dict(search_to)
+        if first_part in sites and search_to:
+            open_with_browser(sites[first_part])
+        elif first_part not in sites and site_name and search_to:
             open_with_browser(
                 f"https://www.startpage.com/sp/search?query=site:{site_name} {search_to}"
             )
@@ -192,12 +185,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.important_site:
-        open_important_site(use_rofi, browser, important_site_file)
+        quick_search(use_rofi, browser, important_site_file)
     elif args.open_site:
         open_site(use_rofi, browser, sites_file)
     elif default_flag:
         if default_flag == "important":
-            open_important_site(use_rofi, browser, important_site_file)
+            quick_search(use_rofi, browser, important_site_file)
         elif default_flag == "open-site":
             print(default_flag)
             open_site(use_rofi, browser, sites_file)

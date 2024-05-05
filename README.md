@@ -45,9 +45,9 @@ You can customize the script to suit your needs by modifying the `.sites.txt` an
 
 - [x] way to select site without rofi
 - [x] add config file for customizing the script
+- [x] add config file for quick search links
 - [ ] way to add sites to the list
 - [ ] way to remove sites from the list
-- [ ] add config file for quick search links
 
 ## Contributing
 
