@@ -9,11 +9,9 @@ import configparser
 config = configparser.ConfigParser()
 config.read("config.ini")
 
-browser = config["open_link"]["browser"]
+browser = config["open_link"].get("browser", fallback="chromium")
 default_flag = config["default"].get("default_flag")
-# print(default_flag)
-
-# exit()
+use_rofi = config["default"].getboolean("use_rofi", fallback=True)
 
 
 def switch_workspace():
@@ -24,7 +22,28 @@ def switch_workspace():
         subprocess.run(["xdotool", "key", "Super_L+2"], stdout=subprocess.DEVNULL)
 
 
-def open_site(browser="chromium", file_path=".sites.txt"):
+def open_site(use_rofi, browser, file_path=".sites.txt"):
+    def select_site(lines, use_rofi):
+        if use_rofi:
+            # Use rofi for site selection
+            selected_site = subprocess.run(
+                ["rofi", "-dmenu", "-i", "-p", "Choose site"],
+                input=lines,
+                text=True,
+                capture_output=True,
+            )
+
+            return selected_site.stdout.strip()
+        else:
+            # Run fzf and pass the sites to it through the standard input
+            process = subprocess.Popen(
+                ["fzf"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True
+            )
+
+            # Send the sites to fzf and get the selected site
+            selected_site, _ = process.communicate(lines)
+
+            return selected_site.split()
 
     # Read the file and filter out comments and empty lines
     with open(file_path, "r") as f:
@@ -37,28 +56,33 @@ def open_site(browser="chromium", file_path=".sites.txt"):
     # Convert lines to a string with each item on a new line
     lines_str = "\n".join(lines)
 
-    # Use rofi for site selection
-    result = subprocess.run(
-        ["rofi", "-dmenu", "-i", "-p", "Choose site"],
-        input=lines_str,
-        text=True,
-        capture_output=True,
-    )
-
     # The selected line is in result.stdout
-    name = result.stdout.strip()
+    site = select_site(use_rofi=use_rofi, lines=lines_str)
 
-    if not name in lines:
+    if not site in lines:
         exit()
 
     # Open the site in the browser
-    subprocess.run([browser, name])
+    subprocess.run([browser, site])
 
     time.sleep(0.3)
     switch_workspace()
 
 
-def open_important_site(browser="chromium", important_site="./.important_site.txt"):
+def open_important_site(use_rofi, browser, important_site="./.important_site.txt"):
+
+    def get_site(use_rofi):
+        if use_rofi:
+            # Use rofi for site selection
+            search_query = subprocess.run(
+                ["rofi", "-dmenu", "-i", "-p", "Search to: "],
+                text=True,
+                capture_output=True,
+            )
+            return search_query.stdout.strip().split()
+        else:
+            search_query = input("Search to: ")
+        return search_query.split()
 
     # Define the help_script function
     def help_script():
@@ -78,7 +102,8 @@ def open_important_site(browser="chromium", important_site="./.important_site.tx
         print("{abbreviation} {search for}", content)
 
     # Define the open_site function
-    def open_site(site):
+    def open_with_browser(site):
+        # TODO: handle this in windows
         is_browser_up = subprocess.run(
             ["pgrep", browser], stdout=subprocess.DEVNULL
         ).returncode
@@ -93,13 +118,7 @@ def open_important_site(browser="chromium", important_site="./.important_site.tx
             [browser, site], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
         )
 
-    # Use rofi for site selection
-    input = subprocess.run(
-        ["rofi", "-dmenu", "-i", "-p", "Search to: "],
-        text=True,
-        capture_output=True,
-    )
-    inputs = input.stdout.strip().split()
+    inputs = get_site(use_rofi=use_rofi)
 
     if inputs:
         # The first part of the input, usually the command or site name
@@ -131,13 +150,13 @@ def open_important_site(browser="chromium", important_site="./.important_site.tx
         }
 
         if first_part in site_dict and search_to:
-            open_site(site_dict[first_part])
+            open_with_browser(site_dict[first_part])
         elif first_part not in site_dict and site_name and search_to:
-            open_site(
+            open_with_browser(
                 f"https://www.startpage.com/sp/search?query=site:{site_name} {search_to}"
             )
         elif site_name and not search_to and site_name:
-            open_site(site_name)
+            open_with_browser(site_name)
 
         else:
             subprocess.run(
@@ -160,8 +179,7 @@ if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.realpath(__file__))
     os.chdir(script_dir)
 
-    # Set the browser and file path
-    file_path = f"{script_dir}/.sites.txt"
+    sites_file = f"{script_dir}/.sites.txt"
     important_site_file = f"{script_dir}/.important_site.txt"
 
     parser = argparse.ArgumentParser(description="Open bookmark sites")
@@ -174,15 +192,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.important_site:
-        open_important_site(browser, important_site_file)
+        open_important_site(use_rofi, browser, important_site_file)
     elif args.open_site:
-        open_site(browser, file_path)
+        open_site(use_rofi, browser, sites_file)
     elif default_flag:
         if default_flag == "important":
-            open_important_site(browser, important_site_file)
+            open_important_site(use_rofi, browser, important_site_file)
         elif default_flag == "open-site":
             print(default_flag)
-            open_site(browser, file_path)
+            open_site(use_rofi, browser, sites_file)
     else:
         print("No flags passed !")
         parser.print_help()

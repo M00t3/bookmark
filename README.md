@@ -13,7 +13,8 @@ It also supports switching workspaces in `i3wm` or `dwm` window managers.
 
 ## Requirements
 
-- `rofi`
+- `rofi` (Optional)
+- `fzf` (Select sites when `rofi` is not available)
 
 ## Usage
 
@@ -42,6 +43,7 @@ You can customize the script to suit your needs by modifying the `.sites.txt` an
 
 ## TODO
 
+- [x] way to select site without rofi
 - [x] add config file for customizing the script
 - [ ] way to add sites to the list
 - [ ] way to remove sites from the list
