@@ -1,7 +1,19 @@
 import os
 import subprocess
 import time
+
 import argparse
+import configparser
+
+# read config file
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+browser = config["open_link"]["browser"]
+default_flag = config["default"].get("default_flag")
+# print(default_flag)
+
+# exit()
 
 
 def switch_workspace():
@@ -149,7 +161,6 @@ if __name__ == "__main__":
     os.chdir(script_dir)
 
     # Set the browser and file path
-    browser = "chromium"
     file_path = f"{script_dir}/.sites.txt"
     important_site_file = f"{script_dir}/.important_site.txt"
 
@@ -166,6 +177,12 @@ if __name__ == "__main__":
         open_important_site(browser, important_site_file)
     elif args.open_site:
         open_site(browser, file_path)
+    elif default_flag:
+        if default_flag == "important":
+            open_important_site(browser, important_site_file)
+        elif default_flag == "open-site":
+            print(default_flag)
+            open_site(browser, file_path)
     else:
         print("No flags passed !")
         parser.print_help()

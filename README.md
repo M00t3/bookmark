@@ -42,10 +42,9 @@ You can customize the script to suit your needs by modifying the `.sites.txt` an
 
 ## TODO
 
+- [x] add config file for customizing the script
 - [ ] way to add sites to the list
 - [ ] way to remove sites from the list
-- [ ] way to select site without rofi
-- [ ] add config file for customizing the script
 - [ ] add config file for quick search links
 
 ## Contributing
