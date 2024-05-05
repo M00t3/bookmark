@@ -10,9 +10,12 @@ import configparser
 
 from quick_search_config import sites_dict
 
-# read config file
+# Find the directory of the script
+script_dir = os.path.dirname(os.path.realpath(__file__))
+
 config = configparser.ConfigParser()
-config.read("config.ini")
+# Read config file
+config.read(f"{script_dir}/config.ini")
 
 browser = config["open_link"].get("browser", fallback="chromium")
 default_flag = config["default"].get("default_flag")
@@ -33,7 +36,7 @@ def switch_workspace(dwm_workspace="2", i3wm_workspace="2"):
         )
     elif subprocess.run(["pgrep", "dwm"], stdout=subprocess.DEVNULL).returncode == 0:
         subprocess.run(
-            ["xdotool", "key", f"Super_L+{dwm_workspace}" ], stdout=subprocess.DEVNULL
+            ["xdotool", "key", f"Super_L+{dwm_workspace}"], stdout=subprocess.DEVNULL
         )
 
 
@@ -183,11 +186,9 @@ def quick_search(use_rofi, browser, important_site="./.important_site.txt"):
 
         time.sleep(0.3)
         switch_workspace(i3wm_workspace=i3wm_workspace, dwm_workspace=dwm_workspace)
-        
+
 
 if __name__ == "__main__":
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    os.chdir(script_dir)
 
     sites_file = f"{script_dir}/.sites.txt"
     important_site_file = f"{script_dir}/.important_site.txt"
