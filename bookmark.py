@@ -1,6 +1,7 @@
 import os
 import subprocess
 import time
+import platform
 
 import argparse
 import configparser
@@ -14,14 +15,24 @@ config.read("config.ini")
 browser = config["open_link"].get("browser", fallback="chromium")
 default_flag = config["default"].get("default_flag")
 use_rofi = config["default"].getboolean("use_rofi", fallback=True)
+dwm_workspace = config["default"].get("dwm_workspace", fallback="2")
+i3wm_workspace = config["default"].get("i3wm_workspace", fallback="2")
 
 
-def switch_workspace():
+def switch_workspace(dwm_workspace="2", i3wm_workspace="2"):
+    # Check if the operating system is Linux
+    if platform.system() != "Linux":
+        return
+
     # Check if i3 or dwm is running and switch workspace
     if subprocess.run(["pgrep", "i3wm"], stdout=subprocess.DEVNULL).returncode == 0:
-        subprocess.run(["i3-msg", "workspace", "2"], stdout=subprocess.DEVNULL)
+        subprocess.run(
+            ["i3-msg", "workspace", i3wm_workspace], stdout=subprocess.DEVNULL
+        )
     elif subprocess.run(["pgrep", "dwm"], stdout=subprocess.DEVNULL).returncode == 0:
-        subprocess.run(["xdotool", "key", "Super_L+2"], stdout=subprocess.DEVNULL)
+        subprocess.run(
+            ["xdotool", "key", f"Super_L+{dwm_workspace}" ], stdout=subprocess.DEVNULL
+        )
 
 
 def open_site(use_rofi, browser, file_path=".sites.txt"):
@@ -68,7 +79,7 @@ def open_site(use_rofi, browser, file_path=".sites.txt"):
     subprocess.run([browser, site])
 
     time.sleep(0.3)
-    switch_workspace()
+    switch_workspace(i3wm_workspace=i3wm_workspace, dwm_workspace=dwm_workspace)
 
 
 def quick_search(use_rofi, browser, important_site="./.important_site.txt"):
@@ -166,7 +177,11 @@ def quick_search(use_rofi, browser, important_site="./.important_site.txt"):
                 stderr=subprocess.DEVNULL,
             )
             help_script()
+            return
 
+        time.sleep(0.3)
+        switch_workspace(i3wm_workspace=i3wm_workspace, dwm_workspace=dwm_workspace)
+        
 
 if __name__ == "__main__":
     script_dir = os.path.dirname(os.path.realpath(__file__))
