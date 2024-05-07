@@ -28,18 +28,18 @@ cd bookmark-manager
 To open a bookmarked site:
 
 ```bash
-python bookmark.py --open-site
+python bookmark.py --open
 ```
 
 To open an important site:
 
 ```bash
-python bookmark.py --important-site
+python bookmark.py --quick-search
 ```
 
 ## Configuration
 
-You can customize the script to suit your needs by modifying the `.sites.txt` and `.important_site.txt` files. These files contain the list of bookmarked and important sites respectively.
+You can customize the script to suit your needs by modifying the `.sites.txt` and `.quick_search.txt` files. These files contain the list of bookmarked and important sites respectively.
 
 ## TODO
 

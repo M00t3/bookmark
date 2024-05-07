@@ -87,7 +87,7 @@ def open_site(use_rofi, browser, file_path=".sites.txt"):
     switch_workspace(i3wm_workspace=i3wm_workspace, dwm_workspace=dwm_workspace)
 
 
-def quick_search(use_rofi, browser, important_site="./.important_site.txt"):
+def quick_search(use_rofi, browser, quick_search_file="./.important_site.txt"):
 
     def get_site(use_rofi):
         if use_rofi:
@@ -104,7 +104,7 @@ def quick_search(use_rofi, browser, important_site="./.important_site.txt"):
 
     # Define the help_script function
     def help_script():
-        with open(important_site, "r") as file:
+        with open(quick_search_file, "r") as file:
             content = file.read()
         subprocess.run(
             [
@@ -150,7 +150,7 @@ def quick_search(use_rofi, browser, important_site="./.important_site.txt"):
             search_to = None
 
         # Open the file containing important sites
-        with open(important_site, "r") as file:
+        with open(quick_search_file, "r") as file:
             lines = file.readlines()
         # Find the site name that starts with the first part of the input
         site_name = next(
@@ -191,25 +191,25 @@ def quick_search(use_rofi, browser, important_site="./.important_site.txt"):
 if __name__ == "__main__":
 
     sites_file = f"{script_dir}/.sites.txt"
-    important_site_file = f"{script_dir}/.important_site.txt"
+    quick_search_file = f"{script_dir}/.quick_search.txt"
 
     parser = argparse.ArgumentParser(description="Open bookmark sites")
 
     parser.add_argument(
-        "-i", "--important-site", action="store_true", help="Open important site"
+        "-q", "--quick-search", action="store_true", help="quick search into list of sites"
     )
-    parser.add_argument("-o", "--open-site", action="store_true", help="Open site")
+    parser.add_argument("-o", "--open", action="store_true", help="Open site from list of sites")
 
     args = parser.parse_args()
 
-    if args.important_site:
-        quick_search(use_rofi, browser, important_site_file)
-    elif args.open_site:
+    if args.quick_search:
+        quick_search(use_rofi, browser, quick_search_file)
+    elif args.open:
         open_site(use_rofi, browser, sites_file)
     elif default_flag:
-        if default_flag == "important":
-            quick_search(use_rofi, browser, important_site_file)
-        elif default_flag == "open-site":
+        if default_flag == "quick-search":
+            quick_search(use_rofi, browser, quick_search_file)
+        elif default_flag == "open":
             print(default_flag)
             open_site(use_rofi, browser, sites_file)
     else:
