@@ -21,7 +21,7 @@ It also supports switching workspaces in `i3wm` or `dwm` window managers.
 First, clone the repository and navigate to the project directory:
 
 ```bash
-git clone https://github.com/mooteee/bookmark.git
+git clone https://github.com/M00t3/bookmark.git
 cd bookmark-manager
 ```
 
